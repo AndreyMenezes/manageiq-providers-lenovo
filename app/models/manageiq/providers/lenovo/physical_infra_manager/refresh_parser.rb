@@ -73,11 +73,11 @@ module ManageIQ::Providers::Lenovo
       nodes += nodes_chassis
 
       nodes = nodes.map do |node|
-        Firmware.where(:ph_server_uuid => node["uuid"]).delete_all
+        Firmware.where(ph_server_uuid: node["uuid"]).delete_all
 
-        # TODO: (walteraa) see how to save it using process_collection
+        #TODO (walteraa) see how to save it using process_collection
         node["firmware"].map do |firmware|
-          f = Firmware.new parse_firmware(firmware, node["uuid"])
+          f = Firmware.new parse_firmware(firmware,node["uuid"])
           f.save!
         end
         XClarityClient::Node.new node
@@ -109,8 +109,6 @@ module ManageIQ::Providers::Lenovo
     end
 
     def parse_nodes(node)
-<<<<<<< HEAD
-      # physical_server = ManageIQ::Providers::Lenovo::PhysicalInfraManager::PhysicalServer.new(node)
       new_result = {
         :type           => ManageIQ::Providers::Lenovo::PhysicalInfraManager::PhysicalServer.name,
         :name           => node.name,
@@ -127,27 +125,7 @@ module ManageIQ::Providers::Lenovo
         :macAddresses   => node.macAddress.split(",").flatten,
         :ipv4Addresses  => node.ipv4Addresses.split.flatten,
         :ipv6Addresses  => node.ipv6Addresses.split.flatten,
-        :healthState    => HEALTH_STATE[node.cmmHealthState.downcase],
-        :powerState     => POWER_STATE_MAP[node.powerStatus],
         :vendor         => "lenovo"
-=======
-      new_result = {
-        :type          => ManageIQ::Providers::Lenovo::PhysicalInfraManager::PhysicalServer.name,
-        :name          => node.name,
-        :ems_ref       => node.uuid,
-        :uid_ems       => @ems.uid_ems,
-        :hostname      => node.hostname,
-        :product_name  => node.productName,
-        :manufacturer  => node.manufacturer,
-        :machine_type  => node.machineType,
-        :model         => node.model,
-        :serial_number => node.serialNumber,
-        :uuid          => node.uuid,
-        :FRU           => node.FRU,
-        :macAddresses  => node.macAddress.split(",").flatten,
-        :ipv4Addresses => node.ipv4Addresses.split.flatten,
-        :ipv6Addresses => node.ipv6Addresses.split.flatten
->>>>>>> ManageIQ/master
       }
       return node.uuid, new_result
     end
