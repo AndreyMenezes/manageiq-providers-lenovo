@@ -56,12 +56,15 @@ module ManageIQ::Providers::Lenovo
     private
 
     def get_physical_servers
+      $log.info("Getphysicalserver>>>>>>")
       cabinets = @connection.discover_cabinet(:status => "includestandalone")
+      $log.info("Cabinets>>>>: #{cabinets.to_s}...")
 
       nodes = cabinets.map(&:nodeList).flatten
       nodes = nodes.map do |node|
         node["itemInventory"]
       end.flatten
+      $log.info("Nodes>>>>>>: #{nodes.to_s}...")
 
       chassis = cabinets.map(&:chassisList).flatten
 
@@ -120,11 +123,9 @@ module ManageIQ::Providers::Lenovo
         :machineType    => node.machineType,
         :model          => node.model,
         :serialNumber   => node.serialNumber,
-        :uuid           => node.uuid,
         :FRU            => node.FRU,
-        :macAddresses   => node.macAddress.split(",").flatten,
-        :ipv4Addresses  => node.ipv4Addresses.split.flatten,
-        :ipv6Addresses  => node.ipv6Addresses.split.flatten,
+        :health_state   => HEALTH_STATE[node.cmmHealthState.downcase],
+        :power_state    => POWER_STATE_MAP[node.powerStatus],
         :vendor         => "lenovo"
       }
       return node.uuid, new_result
